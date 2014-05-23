@@ -1,0 +1,30 @@
+- name: update all packages
+  yum:  name=* state=latest
+- name: install the 'Development tools' package group
+  yum:  name="@Development tools" state=present
+- name: install additional requirements
+  yum:  name={{ item }} state=present
+  with_items:
+    - zlib-devel
+    - bzip2-devel
+    - openssl-devel
+    - ncurses-devel
+    - sqlite-devel
+    - readline-devel
+    - tk-devel
+    - gdbm-devel
+    - db4-devel
+    - libpcap-devel
+    - xz-devel
+- file: path={{ workspace }}/python
+        state=directory
+- get_url: url=https://www.python.org/ftp/python/2.7.6/Python-2.7.6.tgz
+           dest={{ workspace }}/python/Python-2.7.6.tgz
+- shell: tar zxvf {{ workspace }}/python/Python-2.7.6.tgz
+         chdir={{ workspace }}/python
+- shell: ./configure --with-threads --enable-shared --prefix={{ opt_path }}
+         chdir={{ workspace }}/python/Python-2.7.6
+- shell: make && make altinstall
+         chdir={{ workspace }}/python/Python-2.7.6
+- shell: ln -s {{ opt_path }}/bin/python2.7 {{ opt_path }}/bin/python
+- shell: ln -s {{ workspace }}/python/Python-2.7.6/{{libpython}} {{ lib64 }}/{{libpython}}

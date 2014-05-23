@@ -1,0 +1,30 @@
+{
+  "builders": [{
+    "type": "docker",
+    "image": "centos:6.4",
+    "export_path": "image.tar"
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm",
+        "yum -y update",
+        "yum -y install ansible"
+      ]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "playbook.yml",
+      "role_paths": ["roles/python"],
+      "staging_directory": "/tmp/packer-provisioner-ansible-local"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-import",
+      "repository": "test/centos6.4",
+      "tag": "0.1"
+    }
+  ]
+}

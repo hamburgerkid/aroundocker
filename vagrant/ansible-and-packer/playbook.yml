@@ -1,0 +1,23 @@
+- hosts: all
+  sudo: True
+  user: vagrant
+  tasks:
+    - name: update all packages
+      yum:  name=* state=latest
+    - name: install additional requirements
+      yum:  name={{ item }} state=present
+      with_items:
+        - unzip
+        - curl
+    - file:  path={{ workspace }}/packer
+             state=directory
+    - file:  path={{ opt_path }}
+             state=directory
+    - get_url: url=https://dl.bintray.com/mitchellh/packer/0.6.0_linux_amd64.zip
+               dest={{ workspace }}/packer/0.6.0_linux_amd64.zip
+    - shell: unzip {{ workspace }}/packer/0.6.0_linux_amd64.zip
+             chdir={{ opt_path }}
+    - shell: echo "export PATH={{ opt_path }}:{{ ansible_env.PATH }}" > /home/vagrant/.bashrc
+  vars:
+    workspace: /home/{{ ansible_ssh_user }}/work
+    opt_path:  /opt/packer/bin
